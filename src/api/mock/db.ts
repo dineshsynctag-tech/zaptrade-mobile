@@ -25,7 +25,7 @@ export function nextId(prefix: string) {
   return `${prefix}_${seq}`;
 }
 
-function brokerId() {
+export function brokerId() {
   return String(Math.floor(1_000_000_000 + Math.random() * 8_999_999_999));
 }
 
@@ -46,6 +46,7 @@ interface SeedSpec {
   sellStatus?: LegStatus;
   sellFillPrice?: string;
   rejectReason?: string;
+  cancelReason?: string;
   minutesAgo: number;
 }
 
@@ -82,7 +83,7 @@ function buildOrder(s: SeedSpec): OrderDetail {
     events.push({ type: 'SELL_FILLED', at: sellAt, message: `Sold @ $${s.sellFillPrice} · P&L $${profit}`, source: 'bot' });
   }
   if (s.buyStatus === 'CANCELLED') {
-    events.push({ type: 'CANCELLED', at: buyAt, message: 'Cancelled by user', source: 'web' });
+    events.push({ type: 'CANCELLED', at: buyAt, message: s.cancelReason ?? 'Cancelled', source: 'bot' });
   }
   if (s.buyStatus === 'REJECTED') {
     events.push({ type: 'REJECTED', at: buyAt, message: `Rejected: ${s.rejectReason}`, source: 'bot' });
@@ -106,6 +107,7 @@ function buildOrder(s: SeedSpec): OrderDetail {
     sellBrokerOrderId: sellStatus ? brokerId() : null,
     sellUpdatedAt: sellStatus === 'FILLED' ? sellAt : sellStatus ? buyAt : null,
     profit,
+    cancelReason: s.cancelReason ?? null,
     rejectReason: s.rejectReason ?? null,
     version: 1,
     source: 'web',
@@ -131,7 +133,7 @@ function seed(): OrderDetail[] {
     // History
     { symbol: 'MRVL', tradeDate: prev, qty: 3, buyPrice: '285.00', profitPct: '0.25', buyStatus: 'FILLED', buyFillPrice: '285.00', sellStatus: 'FILLED', sellFillPrice: '285.71', minutesAgo: 1500 },
     { symbol: 'AMZN', tradeDate: prev, qty: 2, buyPrice: '220.00', profitPct: '0.25', buyStatus: 'FILLED', buyFillPrice: '220.00', sellStatus: 'FILLED', sellFillPrice: '220.55', minutesAgo: 1560 },
-    { symbol: 'GOOG', tradeDate: prev, qty: 3, buyPrice: '240.00', profitPct: '0.3', buyStatus: 'CANCELLED', minutesAgo: 1620 },
+    { symbol: 'GOOG', tradeDate: prev, qty: 3, buyPrice: '240.00', profitPct: '0.3', buyStatus: 'CANCELLED', cancelReason: 'Not filled by market close', minutesAgo: 1620 },
   ];
   return specs.map(buildOrder);
 }

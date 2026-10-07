@@ -14,7 +14,10 @@ export interface Order {
   /** Trading day the order is for, YYYY-MM-DD (ET). */
   tradeDate: string;
   qty: number;
-  /** Shares bought so far; equals qty once the buy is fully filled. */
+  /**
+   * Shares bought so far; equals qty once fully filled. The buy is a DAY
+   * order, so any unfilled remainder is cancelled at the close.
+   */
   filledQty: number;
 
   buyPrice: string;
@@ -26,12 +29,20 @@ export interface Order {
   profitPct: string;
   /** Server-computed from the actual buy fill. Null until the buy fills. */
   sellPrice: string | null;
-  /** Null means no sell leg yet ("Awaiting buy fill"). */
+  /**
+   * Null means no sell leg yet ("Awaiting buy fill"). The sell is a GTC limit
+   * for filledQty shares: it stays WORKING across sessions until price ≥ sellPrice.
+   */
   sellStatus: LegStatus | null;
   sellFillPrice: string | null;
   sellBrokerOrderId: string | null;
   sellUpdatedAt: string | null;
 
+  /**
+   * Why the buy was cancelled, e.g. the day-limit buy expired unfilled at the
+   * close ("Not filled by market close"). Null if not cancelled.
+   */
+  cancelReason: string | null;
   /** Realised profit in $, set once the sell fills. */
   profit: string | null;
   rejectReason: string | null;
@@ -108,4 +119,28 @@ export interface AuthTokens {
 
 export interface LoginResponse extends AuthTokens {
   user: User;
+}
+
+export interface CreateOrderInput {
+  symbol: string;
+  tradeDate: string;
+  qty: number;
+  buyPrice: string;
+  profitPct: string;
+  /** Set after the user confirms a second open order for the same symbol + date. */
+  confirmDuplicate?: boolean;
+}
+
+/** Fields allowed depend on the order's state — see utils/edit-rules.ts. */
+export interface UpdateOrderInput {
+  version: number;
+  tradeDate?: string;
+  qty?: number;
+  buyPrice?: string;
+  profitPct?: string;
+}
+
+export interface SymbolInfo {
+  symbol: string;
+  name: string;
 }

@@ -68,6 +68,17 @@ export function nextTradingDayAfter(date: string): string {
   return d;
 }
 
+/** `count` trading days starting at `start` (inclusive if it is one). */
+export function tradingDaysFrom(start: string, count: number): string[] {
+  const days: string[] = [];
+  let d = isTradingDay(start) ? start : nextTradingDayAfter(start);
+  while (days.length < count) {
+    days.push(d);
+    d = nextTradingDayAfter(d);
+  }
+  return days;
+}
+
 export function previousTradingDayBefore(date: string): string {
   let d = addDays(date, -1);
   while (!isTradingDay(d)) d = addDays(d, -1);

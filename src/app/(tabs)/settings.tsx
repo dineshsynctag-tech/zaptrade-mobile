@@ -1,7 +1,8 @@
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { GradientHeader, SheetSurface } from '@/components/gradient-header';
+import { MockControls } from '@/components/mock-controls';
 import { PillButton } from '@/components/pill-button';
 import { IS_MOCK } from '@/config';
 import { useAuthStore } from '@/store/auth';
@@ -24,7 +25,7 @@ export default function SettingsScreen() {
     <View style={styles.flex}>
       <GradientHeader title="Settings" />
       <SheetSurface>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} contentInsetAdjustmentBehavior="automatic">
           <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <AppText variant="caption" weight="semibold" tone="accent">
               SIGNED IN AS
@@ -41,8 +42,9 @@ export default function SettingsScreen() {
               </AppText>
             ) : null}
           </View>
+          {IS_MOCK ? <MockControls /> : null}
           <PillButton title="Log out" onPress={confirmLogout} />
-        </View>
+        </ScrollView>
       </SheetSurface>
     </View>
   );

@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -8,6 +9,7 @@ import { OrderList } from '@/components/order-list';
 import { SearchField } from '@/components/search-field';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useMarketStatus } from '@/hooks/use-market-status';
+import { useOrderActions } from '@/hooks/use-order-actions';
 import { useOrders, useQuotes } from '@/hooks/use-orders';
 import type { MarketState } from '@/types/order';
 import { radius, spacing } from '@/theme/theme';
@@ -27,6 +29,7 @@ export default function OrdersScreen() {
   const orders = useOrders({ tab: 'open', search: debouncedSearch || undefined });
   const market = useMarketStatus();
   const quotes = useQuotes(orders.data?.orders.map((o) => o.symbol) ?? []);
+  const actions = useOrderActions();
 
   const [manualRefresh, setManualRefresh] = useState(false);
   const refresh = async () => {
@@ -41,12 +44,15 @@ export default function OrdersScreen() {
         title="Manual Bot"
         subtitle="Limit-buy orders with a profit % target"
         actions={
-          <HeaderIconButton
-            icon="reload"
-            label="Reload orders"
-            onPress={refresh}
-            busy={manualRefresh}
-          />
+          <View style={styles.actions}>
+            <HeaderIconButton
+              icon="reload"
+              label="Reload orders"
+              onPress={refresh}
+              busy={manualRefresh}
+            />
+            <HeaderIconButton icon="plus" label="Add order" onPress={() => router.push('/order/new')} />
+          </View>
         }>
         <View style={styles.stats}>
           <Stat label="Total Orders" value={String(orders.data?.total ?? '—')} />
@@ -73,7 +79,10 @@ export default function OrdersScreen() {
           onRefresh={refresh}
           quotes={quotes.data}
           emptyTitle={debouncedSearch ? `No open orders for “${debouncedSearch}”` : 'No open orders'}
-          emptyMessage={debouncedSearch ? undefined : 'Orders you add will appear here.'}
+          emptyMessage={debouncedSearch ? undefined : 'Tap + to add a limit-buy order.'}
+          onEditOrder={actions.edit}
+          onDeleteOrder={actions.remove}
+          onRetryOrder={actions.retry}
         />
       </SheetSurface>
     </View>
@@ -96,6 +105,10 @@ function Stat({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
   },
   stats: {
     flexDirection: 'row',

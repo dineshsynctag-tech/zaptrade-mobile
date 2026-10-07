@@ -32,6 +32,14 @@ export const sim = {
   lastTick: Date.now(),
 };
 
+export function setMarketOpen(open: boolean) {
+  sim.marketOpen = open;
+}
+
+export function getSession() {
+  return { sessionDate: sim.sessionDate, marketOpen: sim.marketOpen };
+}
+
 // --- prices ---------------------------------------------------------------
 const prices = new Map<string, number>();
 

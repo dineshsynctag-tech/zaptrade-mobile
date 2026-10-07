@@ -1,9 +1,10 @@
 /**
  * Integration smoke test: real routes + mock backend.
- * Welcome → Sign in → Orders (Open) shows the seeded orders.
+ * Welcome → Sign in → Orders (Open) shows the seeded orders → add an order.
  */
 import { describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, screen } from '@testing-library/react-native';
+import { Alert, type AlertButton } from 'react-native';
 import { renderRouter } from 'expo-router/testing-library';
 
 jest.setTimeout(30_000);
@@ -29,5 +30,27 @@ describe('app flow (mock mode)', () => {
     expect(screen.getAllByText('Awaiting buy fill').length).toBeGreaterThan(0);
     // (Open/history split is covered in mock-api.test.ts — NativeTabs mounts
     // every tab in tests, so History's rows are rendered here too.)
+
+    // --- Add an order through the form ---
+    // Auto-confirm native dialogs, recording their text.
+    const dialogs: string[] = [];
+    jest.spyOn(Alert, 'alert').mockImplementation((title, message, buttons?: AlertButton[]) => {
+      dialogs.push(`${title}\n${message}`);
+      buttons?.[buttons.length - 1]?.onPress?.();
+    });
+
+    fireEvent.press(screen.getByLabelText('Add order'));
+    fireEvent.changeText(await screen.findByLabelText('Symbol', {}, { timeout: 10_000 }), 'msft');
+    fireEvent.changeText(screen.getByLabelText('Qty'), '3');
+    fireEvent.changeText(screen.getByLabelText('Buy Price ($)'), '400');
+    // Live preview from the planned buy at the default 0.25%.
+    expect(screen.getByText('$401.00')).toBeTruthy();
+    expect(screen.getByText('$1,200.00')).toBeTruthy();
+
+    fireEvent.press(screen.getByText('REVIEW ORDER'));
+    expect(await screen.findByText('MSFT', {}, { timeout: 10_000 })).toBeTruthy();
+    expect(dialogs[0]).toContain('Place MSFT order?');
+    expect(dialogs[0]).toContain('Buy limit: $400.00 (day order)');
+    expect(dialogs[0]).toContain('est. sell $401.00');
   });
 });

@@ -39,6 +39,11 @@ export function fromCents(cents: number): string {
   return `${sign}${Math.floor(abs / 100)}.${String(abs % 100).padStart(2, '0')}`;
 }
 
+/** Canonical 2-dp string: "468" → "468.00", "468.5" → "468.50". */
+export function normalizePrice(value: string): string {
+  return fromCents(toCents(value));
+}
+
 /** "0.25" → 2500 */
 export function pctToE4(value: string): number {
   const v = value.trim();

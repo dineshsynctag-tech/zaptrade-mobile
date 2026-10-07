@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import type { Order } from '@/types/order';
 import { radius, spacing, TOUCH_TARGET } from '@/theme/theme';
 import { useAppTheme } from '@/theme/use-app-theme';
+import { canDelete, getEditability } from '@/utils/edit-rules';
 import { isPartiallyFilled } from '@/utils/order-status';
 import { belowPlanCents, formatUsd, toCentsSigned } from '@/utils/price';
 import { formatEt, formatTradeDate } from '@/utils/time';
@@ -32,6 +33,8 @@ export const OrderCard = memo(function OrderCard({
   const below = belowPlanCents(order);
   const partial = isPartiallyFilled(order);
   const profitCents = order.profit ? toCentsSigned(order.profit) : null;
+  const editable = !!onEdit && getEditability(order) !== 'none';
+  const deletable = !!onDelete && canDelete(order);
 
   return (
     <Pressable
@@ -92,6 +95,11 @@ export const OrderCard = memo(function OrderCard({
               Filled {order.filledQty}/{order.qty}
             </AppText>
           ) : null}
+          {order.cancelReason ? (
+            <AppText variant="caption" tone="muted">
+              {order.cancelReason}
+            </AppText>
+          ) : null}
           {below > 0 ? (
             <AppText variant="caption" weight="medium" tone="success">
               Filled below plan by {formatUsd(below)}
@@ -110,6 +118,11 @@ export const OrderCard = memo(function OrderCard({
               </AppText>
               <View style={styles.statusRow}>
                 <StatusBadge status={order.sellStatus} />
+                {order.sellStatus === 'WORKING' ? (
+                  <AppText variant="caption" weight="semibold" tone="muted">
+                    GTC
+                  </AppText>
+                ) : null}
                 <AppText variant="caption" tone="muted">
                   {formatEt(order.sellUpdatedAt)}
                 </AppText>
@@ -135,7 +148,7 @@ export const OrderCard = memo(function OrderCard({
           <AppText variant="caption" weight="medium" style={[styles.flex, { color: colors.badge.REJECTED.fg }]}>
             {order.rejectReason}
           </AppText>
-          {onRetry ? (
+          {onRetry && order.buyStatus === 'REJECTED' ? (
             <Pressable
               accessibilityRole="button"
               onPress={() => onRetry(order)}
@@ -162,15 +175,15 @@ export const OrderCard = memo(function OrderCard({
             {profitCents === null ? '—' : formatUsd(profitCents, { signed: true })}
           </AppText>
         </View>
-        {onEdit ? (
-          <ActionButton icon="edit" label={`Edit ${order.symbol} order`} onPress={() => onEdit(order)} />
+        {editable ? (
+          <ActionButton icon="edit" label={`Edit ${order.symbol} order`} onPress={() => onEdit!(order)} />
         ) : null}
-        {onDelete ? (
+        {deletable ? (
           <ActionButton
             icon="delete"
             label={`Delete ${order.symbol} order`}
             danger
-            onPress={() => onDelete(order)}
+            onPress={() => onDelete!(order)}
           />
         ) : null}
       </View>

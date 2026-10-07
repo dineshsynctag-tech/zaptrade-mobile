@@ -7,6 +7,7 @@ import { ApiError } from '@/api/client';
 import { SheetSurface } from '@/components/gradient-header';
 import { ModalHeader } from '@/components/modal-header';
 import { OrderForm } from '@/components/order-form';
+import { requireBiometric } from '@/hooks/biometrics';
 import { useMarketStatus } from '@/hooks/use-market-status';
 import { useCreateOrder } from '@/hooks/use-order-mutations';
 import type { CreateOrderInput } from '@/types/order';
@@ -50,7 +51,7 @@ export default function NewOrderScreen() {
       ].join('\n'),
       'Place order',
     );
-    if (!ok) return;
+    if (!ok || !(await requireBiometric(`Confirm ${input.symbol} order`))) return;
 
     try {
       await create.mutateAsync(input);

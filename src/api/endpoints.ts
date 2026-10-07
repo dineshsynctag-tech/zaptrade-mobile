@@ -55,6 +55,22 @@ export function lookupSymbol(symbol: string) {
   return api.request<SymbolInfo>('GET', `/symbols/${encodeURIComponent(symbol)}`);
 }
 
+export interface DeviceRegistration {
+  token: string;
+  platform: 'ios' | 'android';
+  /** Which order events to push; the server skips disabled kinds. */
+  notify: Record<string, boolean>;
+}
+
+/** Register (or update) this device's Expo push token. */
+export function registerDevice(device: DeviceRegistration) {
+  return api.request<void>('POST', '/devices', { body: device });
+}
+
+export function unregisterDevice(token: string) {
+  return api.request<void>('DELETE', `/devices/${encodeURIComponent(token)}`);
+}
+
 export function getMarketStatus() {
   return api.request<MarketStatus>('GET', '/market-status');
 }

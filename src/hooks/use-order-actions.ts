@@ -6,6 +6,7 @@ import { Alert } from 'react-native';
 import { ApiError } from '@/api/client';
 import { queryKeys } from '@/api/query-client';
 import type { Order } from '@/types/order';
+import { requireBiometric } from './biometrics';
 import { confirmAsync } from '@/utils/confirm';
 import { deleteEffect } from '@/utils/edit-rules';
 import { formatUsd } from '@/utils/price';
@@ -41,7 +42,7 @@ export function useOrderActions() {
         sell ? 'Cancel sell' : 'Cancel order',
         { destructive: true, cancelLabel: 'Keep' },
       );
-      if (!ok) return;
+      if (!ok || !(await requireBiometric(`Confirm cancelling ${order.symbol}`))) return;
       try {
         await del.mutateAsync({ id: order.id, version: order.version });
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
@@ -51,6 +52,7 @@ export function useOrderActions() {
     },
 
     retry: async (order: Order) => {
+      if (!(await requireBiometric(`Confirm resubmitting ${order.symbol}`))) return;
       try {
         await retry.mutateAsync({ id: order.id, version: order.version });
       } catch (e) {

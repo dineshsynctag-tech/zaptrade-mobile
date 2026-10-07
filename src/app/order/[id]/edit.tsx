@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/empty-state';
 import { SheetSurface } from '@/components/gradient-header';
 import { ModalHeader } from '@/components/modal-header';
 import { OrderForm } from '@/components/order-form';
+import { requireBiometric } from '@/hooks/biometrics';
 import { useMarketStatus } from '@/hooks/use-market-status';
 import { useOrder, useUpdateOrder } from '@/hooks/use-order-mutations';
 import type { UpdateOrderInput } from '@/types/order';
@@ -75,7 +76,7 @@ export default function EditOrderScreen() {
           ];
 
     const ok = await confirmAsync(`Save ${o.symbol} changes?`, lines.join('\n'), 'Save');
-    if (!ok) return;
+    if (!ok || !(await requireBiometric(`Confirm ${o.symbol} changes`))) return;
 
     try {
       await update.mutateAsync(patch);

@@ -9,6 +9,18 @@ import { renderRouter } from 'expo-router/testing-library';
 
 jest.setTimeout(30_000);
 
+// No native notifications module under Jest: permission denied, no taps.
+jest.mock('expo-notifications', () => ({
+  setNotificationHandler: jest.fn(),
+  setNotificationChannelAsync: jest.fn(async () => null),
+  getPermissionsAsync: jest.fn(async () => ({ granted: false, canAskAgain: false })),
+  requestPermissionsAsync: jest.fn(async () => ({ granted: false, canAskAgain: false })),
+  getExpoPushTokenAsync: jest.fn(async () => ({ data: '' })),
+  scheduleNotificationAsync: jest.fn(async () => ''),
+  useLastNotificationResponse: () => null,
+  AndroidImportance: { HIGH: 4 },
+}));
+
 describe('app flow (mock mode)', () => {
   it('signs in and lists open orders with server-computed sell prices', async () => {
     renderRouter('./src/app', { initialUrl: '/' });

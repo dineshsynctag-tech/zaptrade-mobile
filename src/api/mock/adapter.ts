@@ -40,6 +40,9 @@ const json = (status: number, body: unknown): ApiResponse => ({ status, body });
 const error = (status: number, code: string, message: string, details?: unknown) =>
   json(status, { code, message, details });
 
+// --- push devices (mock just records them) ---
+export const mockDevices = new Map<string, unknown>();
+
 // --- idempotency: same key + route replays the first successful response ---
 const idempotent = new Map<string, ApiResponse>();
 
@@ -242,6 +245,18 @@ function route(req: ApiRequest): ApiResponse {
   tick();
 
   if (method === 'GET' && path === '/market-status') return json(200, marketStatus());
+
+  if (method === 'POST' && path === '/devices') {
+    const device = req.body as { token?: string };
+    if (!device?.token) return error(422, 'VALIDATION', 'token is required');
+    mockDevices.set(device.token, device);
+    return json(204, null);
+  }
+  const dev = path.match(/^\/devices\/([^/]+)$/);
+  if (dev && method === 'DELETE') {
+    mockDevices.delete(decodeURIComponent(dev[1]));
+    return json(204, null);
+  }
 
   if (method === 'GET' && path === '/quotes') {
     const symbols = (req.query?.symbols ?? '').split(',').filter(Boolean);

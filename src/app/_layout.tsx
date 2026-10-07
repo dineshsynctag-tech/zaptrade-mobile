@@ -13,10 +13,21 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { queryClient } from '@/api/query-client';
+import { AppLock } from '@/components/app-lock';
+import { configureNotifications } from '@/notifications/notifications';
+import { usePushNotifications } from '@/notifications/use-push-notifications';
 import { useAuthStore } from '@/store/auth';
+import { usePrefsStore } from '@/store/prefs';
 import { useAppTheme } from '@/theme/use-app-theme';
 
 SplashScreen.preventAutoHideAsync();
+configureNotifications();
+
+/** Services that only run while signed in. */
+function SignedInServices() {
+  usePushNotifications();
+  return <AppLock />;
+}
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -27,18 +38,21 @@ export default function RootLayout() {
   });
   const status = useAuthStore((s) => s.status);
   const hydrate = useAuthStore((s) => s.hydrate);
+  const prefsHydrated = usePrefsStore((s) => s.hydrated);
+  const hydratePrefs = usePrefsStore((s) => s.hydrate);
   const { scheme, colors } = useAppTheme();
 
   useEffect(() => {
     hydrate();
-  }, [hydrate]);
+    hydratePrefs();
+  }, [hydrate, hydratePrefs]);
 
   // Drop cached data from the previous user on sign-out.
   useEffect(() => {
     if (status === 'signedOut') queryClient.clear();
   }, [status]);
 
-  const ready = (fontsLoaded || !!fontError) && status !== 'loading';
+  const ready = (fontsLoaded || !!fontError) && status !== 'loading' && prefsHydrated;
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
@@ -65,6 +79,7 @@ export default function RootLayout() {
             <Stack.Screen name="(auth)" />
           </Stack.Protected>
         </Stack>
+        {signedIn ? <SignedInServices /> : null}
       </ThemeProvider>
     </QueryClientProvider>
   );

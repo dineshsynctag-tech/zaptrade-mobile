@@ -80,6 +80,7 @@ export default function OrdersScreen() {
           quotes={quotes.data}
           emptyTitle={debouncedSearch ? `No open orders for “${debouncedSearch}”` : 'No open orders'}
           emptyMessage={debouncedSearch ? undefined : 'Tap + to add a limit-buy order.'}
+          onPressOrder={actions.open}
           onEditOrder={actions.edit}
           onDeleteOrder={actions.remove}
           onRetryOrder={actions.retry}

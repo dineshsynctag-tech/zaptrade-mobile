@@ -15,6 +15,7 @@ const ICONS = {
   eyeOff: { ios: 'eye.slash', android: 'visibility_off', web: 'visibility_off' },
   close: { ios: 'xmark.circle.fill', android: 'cancel', web: 'cancel' },
   arrowRight: { ios: 'arrow.right', android: 'arrow_forward', web: 'arrow_forward' },
+  back: { ios: 'chevron.left', android: 'arrow_back', web: 'arrow_back' },
   chevronRight: { ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' },
   warning: { ios: 'exclamationmark.triangle.fill', android: 'warning', web: 'warning' },
   offline: { ios: 'wifi.slash', android: 'wifi_off', web: 'wifi_off' },

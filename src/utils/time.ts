@@ -43,3 +43,28 @@ export function formatLocalTime(ms: number): string {
 export function formatTradeDate(date: string): string {
   return shortDate.format(new Date(`${date}T00:00:00Z`));
 }
+
+const etDateTime = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/New_York',
+  month: 'short',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+});
+
+const istDateTime = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Asia/Kolkata',
+  month: 'short',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
+
+/** "Oct 8, 09:31:05 ET · Oct 8, 19:01 IST" */
+export function formatEtAndIst(iso: string): string {
+  const d = new Date(iso);
+  return `${etDateTime.format(d)} ET · ${istDateTime.format(d)} IST`;
+}

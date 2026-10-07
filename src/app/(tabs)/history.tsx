@@ -5,6 +5,7 @@ import { GradientHeader, SheetSurface } from '@/components/gradient-header';
 import { OrderList } from '@/components/order-list';
 import { SearchField } from '@/components/search-field';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { useOrderActions } from '@/hooks/use-order-actions';
 import { useOrders } from '@/hooks/use-orders';
 
 // P1: plain closed-order list. Date-range filter and totals arrive in P4.
@@ -12,6 +13,7 @@ export default function HistoryScreen() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search.trim());
   const orders = useOrders({ tab: 'history', search: debouncedSearch || undefined });
+  const actions = useOrderActions();
 
   return (
     <View style={styles.flex}>
@@ -26,6 +28,7 @@ export default function HistoryScreen() {
           error={orders.error}
           onRefresh={() => orders.refetch()}
           emptyTitle="No closed orders yet"
+          onPressOrder={actions.open}
         />
       </SheetSurface>
     </View>

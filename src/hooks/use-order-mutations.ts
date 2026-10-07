@@ -12,11 +12,12 @@ import { queryKeys } from '@/api/query-client';
 import type { CreateOrderInput, OrderDetail, UpdateOrderInput } from '@/types/order';
 import { newIdempotencyKey } from '@/utils/id';
 
-export function useOrder(id: string | undefined) {
+export function useOrder(id: string | undefined, opts: { refetchInterval?: number } = {}) {
   return useQuery({
     queryKey: queryKeys.order(id ?? ''),
     queryFn: () => getOrder(id!),
     enabled: !!id,
+    refetchInterval: opts.refetchInterval,
   });
 }
 

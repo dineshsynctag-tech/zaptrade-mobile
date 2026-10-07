@@ -27,6 +27,8 @@ export function useOrderActions() {
   }
 
   return {
+    open: (order: Order) => router.push({ pathname: '/order/[id]', params: { id: order.id } }),
+
     edit: (order: Order) => router.push({ pathname: '/order/[id]/edit', params: { id: order.id } }),
 
     remove: async (order: Order) => {

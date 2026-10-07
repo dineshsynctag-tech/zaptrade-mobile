@@ -57,6 +57,7 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Protected guard={signedIn}>
             <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="order/[id]/index" />
             <Stack.Screen name="order/new" options={{ presentation: 'modal' }} />
             <Stack.Screen name="order/[id]/edit" options={{ presentation: 'modal' }} />
           </Stack.Protected>

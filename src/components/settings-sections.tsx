@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import { Alert, StyleSheet, Switch, View } from 'react-native';
 
 import { authenticate, biometricAvailability } from '@/hooks/biometrics';
 import { supported as pushSupported } from '@/notifications/notifications';
-import { usePrefsStore } from '@/store/prefs';
+import { usePrefsStore, type ThemePref } from '@/store/prefs';
 import { radius, spacing, TOUCH_TARGET } from '@/theme/theme';
 import { useAppTheme } from '@/theme/use-app-theme';
 import type { NotificationKind } from '@/utils/notification-text';
+import { isValidPct, pctToE4 } from '@/utils/price';
 import { AppText } from './app-text';
+import { SegmentedControl, type SegmentOption } from './segmented-control';
+import { UnderlineInput } from './underline-input';
 
 const NOTIFY_ROWS: { kind: NotificationKind; label: string; hint: string }[] = [
   { kind: 'BUY_FILLED', label: 'Buy filled', hint: 'Includes the sell price placed from the fill' },
@@ -115,6 +119,54 @@ export function SecuritySettings() {
         value={biometricLock}
         onChange={toggle}
       />
+    </Section>
+  );
+}
+
+export function OrderDefaultsSettings() {
+  const update = usePrefsStore((s) => s.update);
+  const [qty, setQty] = useState(usePrefsStore.getState().defaultQty);
+  const [pct, setPct] = useState(usePrefsStore.getState().defaultProfitPct);
+
+  const qtyError = qty !== '' && (!/^\d+$/.test(qty) || Number(qty) <= 0) ? 'Whole number greater than 0' : null;
+  const pctError = !isValidPct(pct) || pctToE4(pct) <= 0 ? 'Greater than 0, up to 4 decimals' : null;
+
+  return (
+    <Section title="NEW ORDER DEFAULTS">
+      <UnderlineInput
+        label="Qty"
+        value={qty}
+        onChangeText={(t) => setQty(t.trim())}
+        onBlur={() => !qtyError && update({ defaultQty: qty })}
+        keyboardType="number-pad"
+        placeholder="None"
+        error={qtyError}
+      />
+      <UnderlineInput
+        label="Profit %"
+        value={pct}
+        onChangeText={(t) => setPct(t.trim())}
+        onBlur={() => !pctError && update({ defaultProfitPct: pct })}
+        keyboardType="decimal-pad"
+        placeholder="0.25"
+        error={pctError}
+      />
+    </Section>
+  );
+}
+
+const THEME_OPTIONS: SegmentOption<ThemePref>[] = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+
+export function AppearanceSettings() {
+  const theme = usePrefsStore((s) => s.theme);
+  const update = usePrefsStore((s) => s.update);
+  return (
+    <Section title="APPEARANCE">
+      <SegmentedControl options={THEME_OPTIONS} value={theme} onChange={(t) => update({ theme: t })} />
     </Section>
   );
 }

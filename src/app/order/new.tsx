@@ -10,6 +10,7 @@ import { OrderForm } from '@/components/order-form';
 import { requireBiometric } from '@/hooks/biometrics';
 import { useMarketStatus } from '@/hooks/use-market-status';
 import { useCreateOrder } from '@/hooks/use-order-mutations';
+import { usePrefsStore } from '@/store/prefs';
 import type { CreateOrderInput } from '@/types/order';
 import { useAppTheme } from '@/theme/use-app-theme';
 import { confirmAsync } from '@/utils/confirm';
@@ -18,12 +19,12 @@ import type { OrderFormValues } from '@/utils/order-form';
 import { calcSellPrice, formatUsd, normalizePrice, toCents } from '@/utils/price';
 import { formatTradeDate } from '@/utils/time';
 
-const DEFAULT_PROFIT_PCT = '0.25';
-
 export default function NewOrderScreen() {
   const { colors } = useAppTheme();
   const market = useMarketStatus();
   const create = useCreateOrder();
+  const defaultQty = usePrefsStore((s) => s.defaultQty);
+  const defaultProfitPct = usePrefsStore((s) => s.defaultProfitPct);
 
   const tradeDates = useMemo(
     () => (market.data ? tradingDaysFrom(market.data.nextTradingDate, 5) : []),
@@ -92,10 +93,10 @@ export default function NewOrderScreen() {
             initial={{
               symbol: '',
               tradeDate: tradeDates[0],
-              qty: '',
+              qty: defaultQty,
               buyPrice: '',
               targetMode: 'pct',
-              profitPct: DEFAULT_PROFIT_PCT,
+              profitPct: defaultProfitPct,
               sellPrice: '',
             }}
             editability="full"

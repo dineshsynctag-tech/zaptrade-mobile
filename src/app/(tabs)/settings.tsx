@@ -4,14 +4,18 @@ import { AppText } from '@/components/app-text';
 import { GradientHeader, SheetSurface } from '@/components/gradient-header';
 import { MockControls } from '@/components/mock-controls';
 import { PillButton } from '@/components/pill-button';
-import { NotificationSettings, SecuritySettings } from '@/components/settings-sections';
+import {
+  AppearanceSettings,
+  NotificationSettings,
+  OrderDefaultsSettings,
+  SecuritySettings,
+} from '@/components/settings-sections';
 import { IS_MOCK } from '@/config';
 import { unregisterPush } from '@/notifications/use-push-notifications';
 import { useAuthStore } from '@/store/auth';
 import { radius, spacing } from '@/theme/theme';
 import { useAppTheme } from '@/theme/use-app-theme';
 
-// P3: account, notifications, biometric lock, logout. Defaults and theme arrive in P4.
 export default function SettingsScreen() {
   const { colors } = useAppTheme();
   const user = useAuthStore((s) => s.user);
@@ -44,8 +48,10 @@ export default function SettingsScreen() {
               </AppText>
             ) : null}
           </View>
+          <OrderDefaultsSettings />
           <NotificationSettings />
           <SecuritySettings />
+          <AppearanceSettings />
           {IS_MOCK ? <MockControls /> : null}
           <PillButton title="Log out" onPress={confirmLogout} />
         </ScrollView>

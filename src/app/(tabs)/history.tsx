@@ -3,10 +3,12 @@ import { StyleSheet, View } from 'react-native';
 
 import { GradientHeader, SheetSurface } from '@/components/gradient-header';
 import { HeaderStat, HeaderStats } from '@/components/header-stat';
+import { OfflineBanner } from '@/components/offline-banner';
 import { OrderList } from '@/components/order-list';
 import { SearchField } from '@/components/search-field';
 import { SegmentedControl } from '@/components/segmented-control';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { useIsOffline } from '@/hooks/use-network-status';
 import { useOrderActions } from '@/hooks/use-order-actions';
 import { useOrders } from '@/hooks/use-orders';
 import { spacing } from '@/theme/theme';
@@ -28,6 +30,7 @@ export default function HistoryScreen() {
   const range = useMemo(() => rangeFor(preset), [preset]);
   const orders = useOrders({ tab: 'history', search: debouncedSearch || undefined, ...range });
   const actions = useOrderActions();
+  const offline = useIsOffline();
 
   const totals = useMemo(() => historyTotals(orders.data?.orders ?? []), [orders.data]);
   const hasData = !!orders.data;
@@ -51,6 +54,7 @@ export default function HistoryScreen() {
           onRefresh={() => orders.refetch()}
           header={
             <View style={styles.filter}>
+              {offline ? <OfflineBanner updatedAt={orders.dataUpdatedAt} /> : null}
               <SegmentedControl options={RANGE_PRESETS} value={preset} onChange={setPreset} />
             </View>
           }

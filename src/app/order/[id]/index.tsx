@@ -5,9 +5,11 @@ import { AppText } from '@/components/app-text';
 import { EmptyState } from '@/components/empty-state';
 import { GradientHeader, SheetSurface } from '@/components/gradient-header';
 import { HeaderIconButton } from '@/components/header-icon-button';
+import { OfflineBanner } from '@/components/offline-banner';
 import { OrderCard } from '@/components/order-card';
 import { OrderTimeline } from '@/components/order-timeline';
 import { useLiveRefetchInterval } from '@/hooks/use-market-status';
+import { useIsOffline } from '@/hooks/use-network-status';
 import { useOrderActions } from '@/hooks/use-order-actions';
 import { useOrder } from '@/hooks/use-order-mutations';
 import { useQuotes } from '@/hooks/use-orders';
@@ -26,6 +28,7 @@ export default function OrderDetailScreen() {
   const o = order.data;
   const quotes = useQuotes(o && !isClosed(o) ? [o.symbol] : []);
   const actions = useOrderActions();
+  const offline = useIsOffline();
 
   return (
     <View style={styles.flex}>
@@ -59,12 +62,13 @@ export default function OrderDetailScreen() {
                 colors={[colors.accent]}
               />
             }>
+            {offline ? <OfflineBanner updatedAt={order.dataUpdatedAt} /> : null}
             <OrderCard
               order={o}
               lastPrice={quotes.data?.[o.symbol]}
-              onEdit={actions.edit}
-              onDelete={actions.remove}
-              onRetry={actions.retry}
+              onEdit={offline ? undefined : actions.edit}
+              onDelete={offline ? undefined : actions.remove}
+              onRetry={offline ? undefined : actions.retry}
             />
             <BrokerDetails order={o} />
             <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>

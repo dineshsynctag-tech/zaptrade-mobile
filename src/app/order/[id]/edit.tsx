@@ -12,6 +12,7 @@ import { ModalHeader } from '@/components/modal-header';
 import { OrderForm } from '@/components/order-form';
 import { requireBiometric } from '@/hooks/biometrics';
 import { useMarketStatus } from '@/hooks/use-market-status';
+import { ensureOnline } from '@/hooks/use-network-status';
 import { useOrder, useUpdateOrder } from '@/hooks/use-order-mutations';
 import type { UpdateOrderInput } from '@/types/order';
 import { useAppTheme } from '@/theme/use-app-theme';
@@ -40,6 +41,7 @@ export default function EditOrderScreen() {
   }, [market.data, o]);
 
   async function submit(v: OrderFormValues, profitPct: string) {
+    if (!ensureOnline()) return;
     if (!o) return;
 
     const patch: UpdateOrderInput = { version: o.version };

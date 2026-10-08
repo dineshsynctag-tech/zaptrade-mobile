@@ -5,14 +5,14 @@ import {
   Poppins_700Bold,
   useFonts,
 } from '@expo-google-fonts/poppins';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { Stack } from 'expo-router';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router/react-navigation';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
-import { queryClient } from '@/api/query-client';
+import { persistOptions, queryClient, queryPersister } from '@/api/query-client';
 import { AppLock } from '@/components/app-lock';
 import { configureNotifications } from '@/notifications/notifications';
 import { usePushNotifications } from '@/notifications/use-push-notifications';
@@ -49,7 +49,9 @@ export default function RootLayout() {
 
   // Drop cached data from the previous user on sign-out.
   useEffect(() => {
-    if (status === 'signedOut') queryClient.clear();
+    if (status !== 'signedOut') return;
+    queryClient.clear();
+    Promise.resolve(queryPersister.removeClient()).catch(() => {});
   }, [status]);
 
   const ready = (fontsLoaded || !!fontError) && status !== 'loading' && prefsHydrated;
@@ -64,7 +66,7 @@ export default function RootLayout() {
   const navTheme = scheme === 'dark' ? DarkTheme : DefaultTheme;
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
       <ThemeProvider
         value={{ ...navTheme, colors: { ...navTheme.colors, background: colors.background } }}>
         <StatusBar style="light" />
@@ -81,6 +83,6 @@ export default function RootLayout() {
         </Stack>
         {signedIn ? <SignedInServices /> : null}
       </ThemeProvider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }

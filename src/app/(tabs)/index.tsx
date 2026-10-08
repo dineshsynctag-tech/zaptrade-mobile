@@ -4,11 +4,13 @@ import { StyleSheet, View } from 'react-native';
 
 import { GradientHeader, SheetSurface } from '@/components/gradient-header';
 import { HeaderStat, HeaderStats } from '@/components/header-stat';
+import { OfflineBanner } from '@/components/offline-banner';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { OrderList } from '@/components/order-list';
 import { SearchField } from '@/components/search-field';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useMarketStatus } from '@/hooks/use-market-status';
+import { useIsOffline } from '@/hooks/use-network-status';
 import { useOrderActions } from '@/hooks/use-order-actions';
 import { useOrders, useQuotes } from '@/hooks/use-orders';
 import type { MarketState } from '@/types/order';
@@ -30,6 +32,7 @@ export default function OrdersScreen() {
   const market = useMarketStatus();
   const quotes = useQuotes(orders.data?.orders.map((o) => o.symbol) ?? []);
   const actions = useOrderActions();
+  const offline = useIsOffline();
 
   const [manualRefresh, setManualRefresh] = useState(false);
   const refresh = async () => {
@@ -51,7 +54,12 @@ export default function OrdersScreen() {
               onPress={refresh}
               busy={manualRefresh}
             />
-            <HeaderIconButton icon="plus" label="Add order" onPress={() => router.push('/order/new')} />
+            <HeaderIconButton
+              icon="plus"
+              label="Add order"
+              disabled={offline}
+              onPress={() => router.push('/order/new')}
+            />
           </View>
         }>
         <HeaderStats>
@@ -78,12 +86,13 @@ export default function OrdersScreen() {
           error={orders.error}
           onRefresh={refresh}
           quotes={quotes.data}
+          header={offline ? <OfflineBanner updatedAt={orders.dataUpdatedAt} /> : undefined}
           emptyTitle={debouncedSearch ? `No open orders for “${debouncedSearch}”` : 'No open orders'}
           emptyMessage={debouncedSearch ? undefined : 'Tap + to add a limit-buy order.'}
           onPressOrder={actions.open}
-          onEditOrder={actions.edit}
-          onDeleteOrder={actions.remove}
-          onRetryOrder={actions.retry}
+          onEditOrder={offline ? undefined : actions.edit}
+          onDeleteOrder={offline ? undefined : actions.remove}
+          onRetryOrder={offline ? undefined : actions.retry}
         />
       </SheetSurface>
     </View>

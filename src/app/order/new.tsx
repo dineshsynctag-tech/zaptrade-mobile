@@ -9,6 +9,7 @@ import { ModalHeader } from '@/components/modal-header';
 import { OrderForm } from '@/components/order-form';
 import { requireBiometric } from '@/hooks/biometrics';
 import { useMarketStatus } from '@/hooks/use-market-status';
+import { ensureOnline } from '@/hooks/use-network-status';
 import { useCreateOrder } from '@/hooks/use-order-mutations';
 import { usePrefsStore } from '@/store/prefs';
 import type { CreateOrderInput } from '@/types/order';
@@ -32,6 +33,7 @@ export default function NewOrderScreen() {
   );
 
   async function submit(v: OrderFormValues, profitPct: string) {
+    if (!ensureOnline()) return;
     const input: CreateOrderInput = {
       symbol: v.symbol,
       tradeDate: v.tradeDate,

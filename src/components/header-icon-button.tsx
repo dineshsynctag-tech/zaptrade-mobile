@@ -9,19 +9,20 @@ interface HeaderIconButtonProps {
   label: string;
   onPress: () => void;
   busy?: boolean;
+  disabled?: boolean;
 }
 
 /** Round icon button for the gradient header. */
-export function HeaderIconButton({ icon, label, onPress, busy }: HeaderIconButtonProps) {
+export function HeaderIconButton({ icon, label, onPress, busy, disabled }: HeaderIconButtonProps) {
   const { colors } = useAppTheme();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ busy }}
+      accessibilityState={{ busy, disabled }}
       onPress={onPress}
-      disabled={busy}
-      style={({ pressed }) => [styles.button, { opacity: pressed ? 0.7 : 1 }]}>
+      disabled={busy || disabled}
+      style={({ pressed }) => [styles.button, { opacity: disabled ? 0.4 : pressed ? 0.7 : 1 }]}>
       {busy ? (
         <ActivityIndicator color={colors.textOnGradient} />
       ) : (

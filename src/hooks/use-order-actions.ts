@@ -7,6 +7,7 @@ import { ApiError } from '@/api/client';
 import { queryKeys } from '@/api/query-client';
 import type { Order } from '@/types/order';
 import { requireBiometric } from './biometrics';
+import { ensureOnline } from './use-network-status';
 import { confirmAsync } from '@/utils/confirm';
 import { deleteEffect } from '@/utils/edit-rules';
 import { formatUsd } from '@/utils/price';
@@ -33,6 +34,7 @@ export function useOrderActions() {
     edit: (order: Order) => router.push({ pathname: '/order/[id]/edit', params: { id: order.id } }),
 
     remove: async (order: Order) => {
+      if (!ensureOnline()) return;
       const sell = deleteEffect(order) === 'cancelSell';
       const ok = await confirmAsync(
         sell ? `Cancel ${order.symbol} sell?` : `Cancel ${order.symbol} order?`,
@@ -52,6 +54,7 @@ export function useOrderActions() {
     },
 
     retry: async (order: Order) => {
+      if (!ensureOnline()) return;
       if (!(await requireBiometric(`Confirm resubmitting ${order.symbol}`))) return;
       try {
         await retry.mutateAsync({ id: order.id, version: order.version });

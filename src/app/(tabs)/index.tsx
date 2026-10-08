@@ -2,8 +2,8 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { AppText } from '@/components/app-text';
 import { GradientHeader, SheetSurface } from '@/components/gradient-header';
+import { HeaderStat, HeaderStats } from '@/components/header-stat';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { OrderList } from '@/components/order-list';
 import { SearchField } from '@/components/search-field';
@@ -12,7 +12,7 @@ import { useMarketStatus } from '@/hooks/use-market-status';
 import { useOrderActions } from '@/hooks/use-order-actions';
 import { useOrders, useQuotes } from '@/hooks/use-orders';
 import type { MarketState } from '@/types/order';
-import { radius, spacing } from '@/theme/theme';
+import { spacing } from '@/theme/theme';
 import { formatTradeDate } from '@/utils/time';
 
 const MARKET_LABEL: Record<MarketState, string> = {
@@ -54,10 +54,10 @@ export default function OrdersScreen() {
             <HeaderIconButton icon="plus" label="Add order" onPress={() => router.push('/order/new')} />
           </View>
         }>
-        <View style={styles.stats}>
-          <Stat label="Total Orders" value={String(orders.data?.total ?? '—')} />
+        <HeaderStats>
+          <HeaderStat label="Total Orders" value={String(orders.data?.total ?? '—')} />
           {market.data ? (
-            <Stat
+            <HeaderStat
               label={MARKET_LABEL[market.data.state]}
               value={
                 market.data.state === 'open'
@@ -66,7 +66,7 @@ export default function OrdersScreen() {
               }
             />
           ) : null}
-        </View>
+        </HeaderStats>
         <SearchField value={search} onChangeText={setSearch} />
       </GradientHeader>
 
@@ -90,19 +90,6 @@ export default function OrdersScreen() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.stat}>
-      <AppText variant="caption" tone="onGradientMuted">
-        {label}
-      </AppText>
-      <AppText variant="heading" weight="bold" tone="onGradient">
-        {value}
-      </AppText>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
@@ -110,16 +97,5 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     gap: spacing.sm,
-  },
-  stats: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  stat: {
-    flex: 1,
-    borderRadius: radius.card,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: 'rgba(255,255,255,0.12)',
   },
 });

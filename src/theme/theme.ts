@@ -20,6 +20,8 @@ export interface ThemeColors {
   textMuted: string;
   textOnGradient: string;
   textOnGradientMuted: string;
+  /** Translucent fill for buttons, tiles and inputs on the gradient. */
+  onGradientFill: string;
   /** Small red field labels, links, focus underline. */
   accent: string;
   success: string;
@@ -43,6 +45,7 @@ const light: ThemeColors = {
   textMuted: '#8A8A99',
   textOnGradient: '#FFFFFF',
   textOnGradientMuted: 'rgba(255,255,255,0.72)',
+  onGradientFill: 'rgba(255,255,255,0.14)',
   accent: '#C8102E',
   success: '#16794A',
   danger: '#C4320A',
@@ -68,6 +71,7 @@ const dark: ThemeColors = {
   textMuted: '#9C9BAE',
   textOnGradient: '#FFFFFF',
   textOnGradientMuted: 'rgba(255,255,255,0.72)',
+  onGradientFill: 'rgba(255,255,255,0.14)',
   accent: '#FF5A73',
   success: '#45C985',
   danger: '#FF7A66',

@@ -14,7 +14,7 @@ interface SearchFieldProps {
 export function SearchField({ value, onChangeText, placeholder = 'Search symbol' }: SearchFieldProps) {
   const { colors } = useAppTheme();
   return (
-    <View style={styles.field}>
+    <View style={[styles.field, { backgroundColor: colors.onGradientFill }]}>
       <Icon name="search" size={18} color={colors.textOnGradientMuted} />
       <TextInput
         value={value}
@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: radius.pill,
     // Neutral translucency works over any part of the brand gradient.
-    backgroundColor: 'rgba(255,255,255,0.16)',
   },
   input: {
     flex: 1,

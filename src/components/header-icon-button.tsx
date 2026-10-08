@@ -22,7 +22,7 @@ export function HeaderIconButton({ icon, label, onPress, busy, disabled }: Heade
       accessibilityState={{ busy, disabled }}
       onPress={onPress}
       disabled={busy || disabled}
-      style={({ pressed }) => [styles.button, { opacity: disabled ? 0.4 : pressed ? 0.7 : 1 }]}>
+      style={({ pressed }) => [styles.button, { backgroundColor: colors.onGradientFill, opacity: disabled ? 0.4 : pressed ? 0.7 : 1 }]}>
       {busy ? (
         <ActivityIndicator color={colors.textOnGradient} />
       ) : (
@@ -39,6 +39,5 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.16)',
   },
 });

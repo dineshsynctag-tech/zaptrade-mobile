@@ -7,6 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import { usePrefsStore } from '@/store/prefs';
+import { colors } from '@/theme/theme';
 import type { NotificationKind, OrderNotification } from '@/utils/notification-text';
 
 export const ORDERS_CHANNEL = 'orders';
@@ -42,7 +43,7 @@ async function ensureChannel() {
     description: 'Buy fills, sell fills, rejections and expired orders',
     importance: Notifications.AndroidImportance.HIGH,
     vibrationPattern: [0, 250, 250, 250],
-    lightColor: '#C8102E',
+    lightColor: colors.light.accent,
   });
 }
 

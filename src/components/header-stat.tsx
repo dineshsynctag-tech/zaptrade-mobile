@@ -1,12 +1,14 @@
 import { StyleSheet, View } from 'react-native';
 
 import { radius, spacing } from '@/theme/theme';
+import { useAppTheme } from '@/theme/use-app-theme';
 import { AppText } from './app-text';
 
 /** Translucent stat tile on the gradient header. */
 export function HeaderStat({ label, value }: { label: string; value: string }) {
+  const { colors } = useAppTheme();
   return (
-    <View style={styles.stat}>
+    <View style={[styles.stat, { backgroundColor: colors.onGradientFill }]}>
       <AppText variant="caption" tone="onGradientMuted" numberOfLines={1}>
         {label}
       </AppText>
@@ -31,7 +33,5 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    // Translucent white on the brand gradient, same in light and dark.
-    backgroundColor: 'rgba(255,255,255,0.12)',
   },
 });
